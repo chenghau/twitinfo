@@ -28,7 +28,7 @@
 	{% block headblock %}{% endblock %}
 </head>
 
-<body onload="initialize()">
+<body onload="initialize({{event.id}})">
 	<div id="hd">
 		{% block heading %}
 	    <span id="heading"><a href="/">twitInfo</a></span>

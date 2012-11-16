@@ -1,0 +1,20 @@
+({"cols": [
+          {'id':'date','label':'DATE','type': 'datetime'},
+          {'id':'frequency','label':'FREQUENCY (tweets/minute)','type':'number'},
+          {'id':'title','label':'TITLE','type':'string'},
+          {'id':'text','label':'TEXT','type':'string'}],
+  "rows": [{% for tweet in tweets %}
+          {'c':[ 
+          {'v':{{tweet.d|safe}}},
+          {'v':{{tweet.num_tweets|safe}}},
+          {'v':{% if tweet.title != "null"%} '{{tweet.title|escape}}' {% else %} null {% endif %}},
+          {'v':{% if tweet.title != "null"%} '<!--<br><a href="/create_event?start_date={{tweet.data.start_date}}&end_date={{tweet.data.end_date}}&keywords={{tweet.data.keywords}}&parent_id={{tweet.data.event}}" target="_blank">Label this event</a>{% if tweet.children %}<ul>{% for child in tweet.children %}<li><a href="/detail/{{child.id}}/" target="_blank">{{child.name}}</a></li>{% endfor %}</ul>{% endif %}-->'{% else %}null{% endif %}}
+          ]},
+          {% endfor %}],
+  "extra": {'final':{{extra.final}}, 
+            'latest_tweet':{'sentiment':{{extra.latest_tweet.sentiment}}, 
+                            'profile_image_url':'{{extra.latest_tweet.profile_image_url|escape}}',
+                            'date':{{extra.latest_tweet.created_at}},
+                            'tweet':'{{extra.latest_tweet.tweet|escape}}'}}
+});
+

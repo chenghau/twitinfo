@@ -1,14 +1,50 @@
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'testdatabase.db',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
+        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'twitinfo',                      # Or path to database file if using sqlite3.
+        'USER': 'db_user',                      # Not used with sqlite3.
+        'PASSWORD': 'db_passwd',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
     }
 }
 
-SSQL_PATH = ""
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache', # Add 'memcached.PyLibMCCache', 'locmem.LocMemCache' or 'dummy.DummyCache'
+        'LOCATION': 'localhost:11211',
+        'TIMEOUT' : 1440, # in seconds
+    }
+}
 
-CACHE_BACKEND = 'dummy://'
+# Twitter authentication information
+TWITTER_USERNAME = "twt_user"
+TWITTER_PASSWORD = "twt_passwd"
+
+# set to a database URI according to sqlalchemy's scheme for the database to dump stored tweets into
+DATABASE_URI = "postgresql://"
+# to send parameters to the connection argument, set the DATABASE_URI to
+# the database protocol you want (e.g. "postgresql://") and then uncomment
+# and fill in the following DATABASE_CONFIG
+#
+DATABASE_CONFIG = {
+    'database': 'twitinfo',
+    'host': 'localhost',
+    'user': 'db_user',
+    'password': 'db_passwd'
+}
+
+# required by debug_toolbar
+DEBUG_TOOLBAR_PANELS = (
+    'debug_toolbar.panels.version.VersionDebugPanel',
+    'debug_toolbar.panels.timer.TimerDebugPanel',
+    'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
+    'debug_toolbar.panels.headers.HeaderDebugPanel',
+    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
+    'debug_toolbar.panels.template.TemplateDebugPanel',
+    'debug_toolbar.panels.sql.SQLDebugPanel',
+    'debug_toolbar.panels.signals.SignalDebugPanel',
+    'debug_toolbar.panels.logger.LoggingPanel',
+)
+
+INTERNAL_IPS = ('127.0.0.1',)

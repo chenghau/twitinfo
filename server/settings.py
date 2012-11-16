@@ -2,11 +2,11 @@ import os
 import twitinfo
 from private_settings import  *
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Adam Marcus', 'marcua@csail.mit.edu'),
+    #('Adam Marcus', 'marcua@csail.mit.edu'),
     # ('Your Name', 'your_email@domain.com'),
 )
 
@@ -65,6 +65,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+#    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'server.urls'
@@ -84,4 +85,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
 	'server.twitinfo',
 	'django.contrib.admin',
+#        'debug_toolbar',
 )
+

@@ -10,6 +10,14 @@ import traceback
 import time
 import sys
 import settings
+import logging
+
+formatter = logging.Formatter('%(asctime)s | %(lineno)5s | %(message)s')
+CH = logging.StreamHandler()
+CH.setFormatter(formatter)
+logger = logging.getLogger('index_tweets.py')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(CH)
 
 @transaction.commit_manually
 def index_tweets():
@@ -19,50 +27,39 @@ def index_tweets():
     wait_time = 5
 
     # Make max_indexed->keyword sorted mapping
-    kws = Keyword.objects.order_by('max_indexed')
-    sorted_kws = []
-    indexed_kws = {}
-    index_group = []
-    index_val = kws[0].max_indexed
-    for kw in kws:
-        if kw.max_indexed != index_val:
-            sorted_kws.append({'index_val': index_val, 'index_group': index_group})
-            index_val = kw.max_indexed
-            index_group = []
-        index_group.append(kw)
-        indexed_kws[Keyword.normalize(kw.key_word)] = kw
-    sorted_kws.append({'index_val': index_val, 'index_group': index_group})
-    
+    kws = Keyword.objects.order_by('-max_indexed')
+    last_indexed = kws[0].max_indexed
+
     # Get up to 1000 tweets >= min keyword state
     # Loop through tweets, adding keywords to a set from the max_indexed
     # mapping
-    curloc = 0
-    tweets = Tweet.objects.filter(id__gte = sorted_kws[0]['index_val']).order_by('id')[:1000]
+    tweets = Tweet.objects.filter(id__gte = last_indexed).order_by('id')[:1000]
     tweets = list(tweets)
+
+    indexed_kws = {}
     active_kws = set()
+    if len(tweets) > 0:
+        for kw in kws:
+            normalized_kw = Keyword.normalize(kw.key_word)
+            indexed_kws[normalized_kw] = kw
+            active_kws.add(normalized_kw)
+
     for tweet in tweets:
-        while curloc >= 0 and tweet.id > sorted_kws[curloc]['index_val']:
-            for kw in sorted_kws[curloc]['index_group']:
-                active_kws.add(Keyword.normalize(kw.key_word))
-            curloc += 1
-            if curloc >= len(sorted_kws):
-                curloc = -1
         matches = active_kws.intersection(tweet.tweet.lower().split())
         for match in matches:
             kw = indexed_kws[match]
             kw.tweets.add(tweet)
-    
+            kw.max_indexed = tweet.id
+
     if len(tweets) > 0:
-        highest_tweet = tweets[-1].id
         actually_indexed = False
         for kw in kws:
-            if kw.max_indexed != highest_tweet:
-                kw.max_indexed = highest_tweet
+            if kw.max_indexed > last_indexed:
                 kw.save()
                 actually_indexed = True
         if actually_indexed:
             wait_time = 0
-            print "%s: Indexed tweets in range [%d, %d]" % (datetime.datetime.now(), tweets[0].id, highest_tweet)
+            print "%s: Indexed tweets in range [%d, %d]" % (datetime.datetime.now(), tweets[0].id, tweets[-1].id)
             sys.stdout.flush()
     try:
         transaction.commit()

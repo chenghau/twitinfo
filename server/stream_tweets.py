@@ -9,12 +9,12 @@ import threading
 import traceback
 import time
 import sys
-sys.path.append(settings.SSQL_PATH)
-from ssql.query_runner import QueryRunner
+from tweeql.query_runner import QueryRunner
 
 def query_keywords(rerun_regardless, runner, old_query):
     keywords = Keyword.objects.all().order_by('key_word').values_list('key_word', flat=True)
     new_keywords = []
+    print 'number of keywords: %s' % len(keywords)
     for keyword in keywords:
         if keyword.find("'") == -1:
             new_keywords.append(keyword)
